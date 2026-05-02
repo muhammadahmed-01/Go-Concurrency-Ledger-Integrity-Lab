@@ -129,7 +129,7 @@ The `WHERE version = $current_version` guard is a CAS operation. If `rows_affect
 ---
 
 ### 🚨 Finding 2 — The Retry Storm (Optimistic Mode)
-
+- Postgres logs confirmed two distinct failure modes: `409` responses where the version CAS guard rejected the write after retries were exhausted, and `500` responses where the Go context timeout cancelled the in-flight Postgres query mid-execution — visible in DB logs as `canceling statement due to user request`.
 - Only **21,798 iterations completed** — 7× less useful work than buggy mode
 - p95 climbed to **~4,250ms** — highest of all three
 - `version=12,769` matched `12,768 effective deductions` exactly — correctness maintained, at enormous cost
