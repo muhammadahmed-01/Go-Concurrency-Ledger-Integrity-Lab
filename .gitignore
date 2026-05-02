@@ -3,8 +3,9 @@
 *.out
 go-observability-lab.exe
 
-# Local-only deep-dive (kept local, not tracked remotely)
+# Local-only deep-dive documents (kept local, not tracked remotely)
 CONCURRENCY_ANALYSIS.md
+script.js
 
 # k6 output
 summary.json
