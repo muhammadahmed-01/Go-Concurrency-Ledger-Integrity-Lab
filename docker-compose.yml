@@ -1,0 +1,57 @@
+version: "3.9"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Go Concurrency & Ledger Integrity Lab
+#
+# Spins up:
+#   • postgres  — the database
+#   • app       — the Go HTTP server (builds from source)
+#
+# Usage:
+#   docker compose up --build          # start everything
+#   docker compose down -v             # stop + wipe volumes
+#
+# Then run any k6 script against http://localhost:8080:
+#   curl -X POST http://localhost:8080/reset
+#   k6 run k6/buggy.js
+#   k6 run k6/pessimistic.js
+#   k6 run k6/optimistic.js
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: ledger_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB:       testdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d testdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ledger_app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Override the DSN so the app talks to the Docker network alias
+      POSTGRES_DSN: "postgres://postgres:postgres@postgres:5432/testdb?sslmode=disable"
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:

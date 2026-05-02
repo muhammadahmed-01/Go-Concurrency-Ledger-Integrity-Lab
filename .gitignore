@@ -1,0 +1,18 @@
+# Compiled binaries
+*.exe
+*.out
+go-observability-lab.exe
+
+# Local-only deep-dive (kept local, not tracked remotely)
+CONCURRENCY_ANALYSIS.md
+
+# k6 output
+summary.json
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

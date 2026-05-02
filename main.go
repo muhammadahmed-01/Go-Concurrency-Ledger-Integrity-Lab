@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -256,7 +257,14 @@ func initSchema(db *sql.DB) {
 }
 
 func connectDB() *sql.DB {
-	db, _ := sql.Open("postgres", "postgres://postgres:postgres@localhost:5432/testdb?sslmode=disable")
+	dsn := os.Getenv("POSTGRES_DSN")
+	if dsn == "" {
+		dsn = "postgres://postgres:postgres@localhost:5432/testdb?sslmode=disable"
+	}
+	db, err := sql.Open("postgres", dsn)
+	if err != nil {
+		log.Fatalf("failed to open DB: %v", err)
+	}
 	db.SetMaxOpenConns(100)
 	return db
 }
